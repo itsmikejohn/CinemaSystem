@@ -1,11 +1,58 @@
 <script lang="ts">
+	import { enhance } from "$app/forms";
 	import Btn from "$lib/Components/Btn.svelte";
+	import { supabase } from "$lib/DB/supabaseConfig";
+	import { getToastStore, Toast, type ToastSettings } from "@skeletonlabs/skeleton";
+	import type { SubmitFunction } from "@sveltejs/kit";
 	import { scale } from "svelte/transition";
+  
+
+    const toastStore = getToastStore();
+
+    const createToast = (msg: string, hasError: boolean) =>
+    {
+
+        const t: ToastSettings = {
+            message: `
+                <p class=" ${hasError ? "text-black" : "text-white"} font-bold">${msg}</p>
+            `,
+
+
+            background: `${hasError ? "bg-red-500" : "bg-[#EAB308]"}`
+        };
+        toastStore.trigger(t);
+
+    }
 
     const dsComp = {
         showUpload: false,
         showTicketsSold: false,
+
+        loader: false,
+        domMsg: "",
+        movieName: "",
+        ticketQuantity: 0,
     }
+
+    const submitFunc: SubmitFunction = async () =>
+    {
+        dsComp.loader = true;
+        return async ({result, update}) =>
+        {
+            if(result.status === 200){
+                createToast("Upload Successfully!", false);
+                dsComp.showUpload = false;
+                dsComp.loader = false;
+            }else if(result.status === 402){
+                createToast("There is an error contact mikey!", true);
+                dsComp.showUpload = false;
+                dsComp.loader = false;
+            }
+
+            update();
+        }
+    }
+
 
 </script>
 
@@ -19,22 +66,28 @@
     {#if dsComp.showUpload}
         <div class="fixed left-0 right-0 top-0 bottom-0 bg-[#000000c7] p-2">
             <div class="mx-auto sm:max-w-xl card p-2 shadow-black shadow-lg flex flex-col gap-2 mt-[20vh]" transition:scale>
-                <h4 class="h4 text-center">Upload Your Latest Movies!</h4>
-
-                <label>
-                    <p>Movie Name:</p>
-                    <input type="text" class="input" />
-                </label>
-
-                <label>
-                    <p>Maximum Tickets:</p>
-                    <input type="number" class="input" />
-                </label>
-
-                <div class="flex gap-2">
-                    <Btn name="Cancel" on:click={() => dsComp.showUpload = false}/>
-                    <Btn name="Upload"/>
+                <div class="flex flex-row-reverse">
+                    <button class="float-right text-red-500 py-2 transition-all active:scale-95 absolute hover:text-red-900"
+                    on:click={() => dsComp.showUpload = false}
+                    >Close</button>
                 </div>
+                <h4 class="h4 text-center">Upload Your Latest Movies!</h4>
+                
+
+                <form method="POST" use:enhance|={submitFunc} class="flex flex-col gap-2">
+
+                    <label>
+                        <p>Movie Name:</p>
+                        <input name="movieName" type="text" class="input" />
+                    </label>
+    
+                    <label>
+                        <p>Maximum Tickets:</p>
+                        <input name="ticketQuantity" type="number" class="input" />
+                    </label>
+                        
+                    <Btn name="Upload" loader={dsComp.loader} lName="Uploading"/>
+                </form>      
             </div>
         </div>
     {/if}

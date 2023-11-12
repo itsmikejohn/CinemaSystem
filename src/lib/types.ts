@@ -14,3 +14,11 @@ export type UserDATA = {
     fullName: string
     role: string
 }
+
+export type MoviesDataTypes = {
+    id: number
+    created_at: string
+    movie_name: string
+    ticket_quantity: string
+    uid: string
+}

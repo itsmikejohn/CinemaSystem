@@ -17,8 +17,9 @@
 	export let data: LayoutServerData;
 
 	onMount( async () => {
+		
 		$statics.session = data.data;
-
+		
 		$statics.defaultNav = $statics.noAuthNav;
 
 		if($statics.session){

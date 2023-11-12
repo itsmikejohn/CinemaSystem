@@ -1,6 +1,6 @@
 import type { Session } from "@supabase/supabase-js";
 import {writable} from "svelte/store";
-import type { NavSelection } from "./types";
+import type { MoviesDataTypes, NavSelection } from "./types";
 
 
 export const statics = writable({
@@ -36,5 +36,8 @@ export const statics = writable({
             url: "/Book-Now"
         },
     ],
+
+    //book now
+    moviesArray:<MoviesDataTypes[]> [],
 
 })
